@@ -22,7 +22,7 @@
                 </div>
             </header>
 
-            <div class="chat-history" id="chatHistory">
+            <div class="chat-history" id="chatHistory" role="log" aria-live="polite" aria-atomic="false">
                 <div class="message system-msg">
                     <div class="msg-bubble">
                         Welcome to your personal Civic AI Assistant. I can help you navigate the election process, check your registration, and find your polling place.
@@ -32,17 +32,17 @@
                     <div class="msg-bubble action-bubble">
                         To get started and give you personalized answers, could you tell me your street address or zipcode?
                         <div class="inline-input">
-                            <input type="text" id="onboardingAddress" placeholder="e.g. 123 Main St, Anytown CA">
-                            <button id="submitOnboardingBtn">Set Location</button>
+                            <input type="text" id="onboardingAddress" placeholder="e.g. 123 Main St, Anytown CA" aria-label="Enter your location">
+                            <button id="submitOnboardingBtn" aria-label="Submit location">Set Location</button>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="chat-input-wrapper">
-                <input type="text" id="chatInput" placeholder="Ask me anything about voting..." disabled>
-                <button id="sendBtn" disabled>
-                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                <input type="text" id="chatInput" placeholder="Ask me anything about voting..." disabled aria-label="Chat input field">
+                <button id="sendBtn" disabled aria-label="Send message">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                 </button>
             </div>
         </main>
@@ -112,7 +112,9 @@
             </div>
 
         </aside>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
+    <script src="utils.js" defer></script>
+    <script type="module" src="script.js" defer></script>
 </body>
 </html>

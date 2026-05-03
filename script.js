@@ -1,4 +1,4 @@
-const GEMINI_API_KEY = 'AIzDPMNe7McXeK1ExGKr-cT87iivGYwGkxkgdgrdsr-3242';
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 // Replace this with your newly generated Civic API Key:
 const CIVIC_API_KEY = 'YOUR_NEW_CIVIC_API_KEY';
 
@@ -178,14 +178,16 @@ document.addEventListener('DOMContentLoaded', () => {
         bubble.className = 'msg-bubble';
         
         if (isHtml) {
-            bubble.innerHTML = text;
+            bubble.innerHTML = window.utils ? window.utils.sanitizeText(text) : text;
         } else {
-            // Use marked.js for full markdown support (bold, italics, lists, etc.)
+            // Use marked.js for full markdown support, then rigorously sanitize for Security
+            let rawHtml = '';
             if (typeof marked !== 'undefined') {
-                bubble.innerHTML = marked.parse(text);
+                rawHtml = marked.parse(text);
             } else {
-                bubble.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+                rawHtml = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
             }
+            bubble.innerHTML = window.utils ? window.utils.sanitizeText(rawHtml) : rawHtml;
         }
 
         msgWrapper.appendChild(bubble);
@@ -247,13 +249,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function advanceTimelineHeuristics(textContext) {
-        const lower = textContext.toLowerCase();
-        if (lower.includes('research') || lower.includes('measure') || lower.includes('candidate')) {
-            updateTimeline(2);
-        } else if (lower.includes('mail') || lower.includes('absentee') || lower.includes('plan')) {
-            updateTimeline(3);
-        } else if (lower.includes('day') || lower.includes('vote')) {
-            updateTimeline(4);
+        if (window.utils && window.utils.calculateTimelineStep) {
+            const step = window.utils.calculateTimelineStep(textContext);
+            updateTimeline(step);
         }
     }
 });
