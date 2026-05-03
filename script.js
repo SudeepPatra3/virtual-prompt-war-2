@@ -1,6 +1,12 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-// Replace this with your newly generated Civic API Key:
-const CIVIC_API_KEY = 'YOUR_NEW_CIVIC_API_KEY';
+
+// Initialize Official Google SDK
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ 
+    model: "gemini-1.5-flash",
+    tools: [{ googleSearch: {} }] 
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
@@ -27,11 +33,22 @@ document.addEventListener('DOMContentLoaded', () => {
         { role: "user", parts: [{ text: `System Prompt: You are Civic AI, a highly intelligent, polite, and helpful election assistant specifically for India. Today's date is ${new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}. You must provide the most up-to-date and current information possible regarding upcoming elections, dates, and representatives. Keep answers brief and formatted nicely.` }] }
     ];
 
+    // Security: Processing lock to debounce inputs
+    let isProcessing = false;
+
     // --- Onboarding Logic ---
     submitOnboardingBtn.addEventListener('click', async () => {
+        if (isProcessing) return;
         const address = onboardingAddress.value.trim();
         if (!address) return;
 
+        // Security: Strict validation to prevent injection payloads
+        if (!/^[a-zA-Z0-9\s,.-]+$/.test(address)) {
+            addMessage("Security Warning: Invalid characters detected in address. Please use only letters and numbers.", 'assistant');
+            return;
+        }
+
+        isProcessing = true;
         // Disable input while processing
         onboardingAddress.disabled = true;
         submitOnboardingBtn.disabled = true;
@@ -40,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add user message to chat to show action
         addMessage(address, 'user');
 
-        // Use Gemini to dynamically generate civic data based on the address
+        // Use Google SDK to dynamically generate civic data based on the address
         try {
             const prompt = `You are an Indian civic data assistant. The user provided this location in India: "${address}". 
             Return ONLY a valid JSON object (no markdown, no backticks) with these exact fields based on the location:
@@ -48,22 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
             - "pollingLocation": string (a plausible generic polling booth name for this area in India, like "Govt Primary School" or "Community Hall")
             - "representatives": array of strings (list the actual Member of Parliament (MP) and Member of Legislative Assembly (MLA) for this region if known, or just the state's Chief Minister. e.g. ["MP: ...", "MLA: ..."])`;
 
-            const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-goog-api-key': GEMINI_API_KEY
-                },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }],
-                    tools: [{ google_search: {} }]
-                })
-            });
-
-            if (!response.ok) throw new Error("Gemini context fetch failed");
-            
-            const data = await response.json();
-            const aiText = data.candidates[0].content.parts[0].text;
+            const result = await model.generateContent(prompt);
+            const aiText = result.response.text();
             
             // Clean up any markdown backticks Gemini might have included
             const jsonStr = aiText.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -81,10 +84,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // Safe fallback just in case
             userContext = {
                 rawAddress: address,
-                nextElection: "November 5, 2024",
+                nextElection: "November 5, 2026",
                 pollingLocation: "Local Community Center",
-                representatives: ["State Senators"]
+                representatives: ["State Representatives"]
             };
+        } finally {
+            isProcessing = false;
         }
 
         // Update Dashboard UI
@@ -108,9 +113,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Chat Logic ---
     async function handleSend() {
+        if (isProcessing) return;
         const text = chatInput.value.trim();
         if (!text) return;
 
+        // Security: Input length limitation
+        if (text.length > 500) {
+            addMessage("Input too long. Please summarize your query.", 'assistant');
+            return;
+        }
+
+        isProcessing = true;
         // Display user message
         addMessage(text, 'user');
         chatInput.value = '';
@@ -118,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add typing indicator
         const typingId = addTypingIndicator();
 
-        // Prepare context-aware prompt for Gemini
+        // Prepare context-aware prompt for Gemini SDK
         let promptWithContext = text;
         if (userContext) {
             promptWithContext = `[Context: User is located at ${userContext.rawAddress}. Next election: ${userContext.nextElection}. Polling Place: ${userContext.pollingLocation}. Reps: ${userContext.representatives.join(', ')}] User asks: ${text}`;
@@ -128,25 +141,12 @@ document.addEventListener('DOMContentLoaded', () => {
         messageHistory.push({ role: "user", parts: [{ text: promptWithContext }] });
 
         try {
-            const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-goog-api-key': GEMINI_API_KEY
-                },
-                body: JSON.stringify({
-                    contents: messageHistory,
-                    tools: [{ google_search: {} }]
-                })
-            });
-
-            const data = await response.json();
+            const result = await model.generateContent({ contents: messageHistory });
+            const aiText = result.response.text();
             
             removeElement(typingId);
 
-            if (data.candidates && data.candidates.length > 0) {
-                let aiText = data.candidates[0].content.parts[0].text;
-                
+            if (aiText) {
                 // Add AI response to UI and history
                 addMessage(aiText, 'assistant');
                 messageHistory.push({ role: "model", parts: [{ text: aiText }] });
@@ -161,6 +161,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("API Error:", error);
             removeElement(typingId);
             addMessage("Network error connecting to AI services. Please try again later.", 'assistant');
+        } finally {
+            isProcessing = false;
         }
     }
 

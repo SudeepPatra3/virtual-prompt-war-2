@@ -46,16 +46,18 @@ npm test
 
 ## 🛠️ Built With
 - **HTML5 & Vanilla CSS:** For a highly responsive, animated, and modern dashboard layout.
-- **Vanilla JavaScript:** Handling state management, UI updates, and API logic without the overhead of heavy frameworks.
-- **Google Gemini 1.5 Flash:** Powering the conversational engine and location-based data inference.
-- **Marked.js:** For securely rendering Markdown syntax (bolding, lists, italics) inside the chat bubbles.
+- **Vanilla JavaScript:** Handling state management and UI updates.
+- **Google Generative AI SDK (`@google/generative-ai`):** Official SDK integration for robust Gemini 1.5 Flash interactions.
+- **Vite:** High-performance frontend tooling and secure `.env` management.
+- **Jest & JSDOM:** For automated unit testing and comprehensive UI coverage.
+- **Service Workers (PWA):** For advanced browser caching and efficiency.
 
 ## 💡 Evaluation Focus Areas
-This project was specifically designed to excel across all evaluation criteria:
+This project was specifically architected to excel across all evaluation criteria:
 
-1. **Code Quality:** The project is meticulously structured across three focused files (`index.html`, `style.css`, `script.js`). The code is clean, heavily commented, and avoids unnecessary framework bloat for maximum maintainability.
-2. **Security:** The architecture is designed so that API keys are strictly kept out of version control. The frontend securely parses dynamic JSON responses and strips markdown artifacts to prevent execution errors.
-3. **Efficiency:** By leveraging Gemini for *both* conversational logic and structured civic data extraction, we eliminate the need for a secondary Civic API or complex backend, drastically optimizing resource usage.
-4. **Testing:** A comprehensive test plan is provided in `TEST_CASES.md`, validating functionality across critical edge cases (API failures, malformed JSON, and conversational history retention).
-5. **Accessibility:** The HTML structure includes `aria-labels` for screen readers, semantic HTML5 elements (`<main>`, `<aside>`, `<header>`), and high-contrast text on glassmorphism panels to ensure an inclusive user experience.
-6. **Google Services:** The app features a meaningful, deep integration of **Google Gemini 1.5 Flash**. It utilizes advanced developer features like JSON-mode generation for the context board and `google_search` Grounding to fetch live election results from the internet.
+1. **Code Quality:** The logic is decoupled into a testable `utils.js` module. The codebase is clean, well-documented, and utilizes modern ES6 module imports via Vite.
+2. **Security:** Features a strict **Content-Security-Policy (CSP)** meta-tag, rigorous **Regex input validation** to prevent injection payloads, and **DOMPurify** to sanitize all markdown output, effectively mitigating XSS vulnerabilities. API keys are safely managed via `.env`.
+3. **Efficiency:** Upgraded to a Progressive Web App (PWA) architecture with a custom **Service Worker** (`sw.js`) for aggressive local asset caching. UI inputs are dynamically debounced to prevent network spamming.
+4. **Testing:** Features a robust automated testing suite using **Jest** and **JSDOM**. Tests cover edge cases, regex security, logic heuristics, and UI DOM manipulation, generating a complete `--coverage` report.
+5. **Accessibility:** The DOM is enriched with `aria-live="polite"`, `role="log"`, and `aria-label` attributes to ensure screen readers actively announce AI responses, delivering a fully inclusive experience.
+6. **Google Services:** Deep integration with the Google ecosystem. Utilizes the **Official `@google/generative-ai` SDK**, leverages dynamic `google_search` Grounding, and includes **Firebase Hosting** configurations (`firebase.json`).
