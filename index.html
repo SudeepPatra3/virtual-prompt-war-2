@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Election Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        
+        <!-- Left Side: Chat Interface -->
+        <main class="chat-section glass-panel">
+            <header class="chat-header">
+                <div class="ai-avatar">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 1 10 10c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"></path><path d="M12 6v6l4 2"></path></svg>
+                </div>
+                <div class="header-text">
+                    <h1>Civic AI</h1>
+                    <span class="status">Online & Ready to Help</span>
+                </div>
+            </header>
+
+            <div class="chat-history" id="chatHistory">
+                <div class="message system-msg">
+                    <div class="msg-bubble">
+                        Welcome to your personal Civic AI Assistant. I can help you navigate the election process, check your registration, and find your polling place.
+                    </div>
+                </div>
+                <div class="message system-msg">
+                    <div class="msg-bubble action-bubble">
+                        To get started and give you personalized answers, could you tell me your street address or zipcode?
+                        <div class="inline-input">
+                            <input type="text" id="onboardingAddress" placeholder="e.g. 123 Main St, Anytown CA">
+                            <button id="submitOnboardingBtn">Set Location</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-wrapper">
+                <input type="text" id="chatInput" placeholder="Ask me anything about voting..." disabled>
+                <button id="sendBtn" disabled>
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </div>
+        </main>
+
+        <!-- Right Side: Context Dashboard -->
+        <aside class="dashboard-section">
+            
+            <!-- Location Context Card -->
+            <div class="dashboard-card glass-panel" id="locationCard">
+                <h3>Your Context</h3>
+                <div class="context-empty" id="contextEmpty">
+                    <p>Tell me your location in the chat to unlock personalized insights.</p>
+                </div>
+                <div class="context-filled hidden" id="contextFilled">
+                    <div class="info-row">
+                        <span class="label">Location</span>
+                        <span class="val" id="ctxAddress">--</span>
+                    </div>
+                    <div class="info-row highlight">
+                        <span class="label">Next Election</span>
+                        <span class="val" id="ctxElection">--</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Polling Place</span>
+                        <span class="val" id="ctxPolls">--</span>
+                    </div>
+                    <div class="reps-box">
+                        <span class="label">Your Representatives</span>
+                        <ul id="ctxReps"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Timeline Card -->
+            <div class="dashboard-card glass-panel timeline-card">
+                <h3>The Election Journey</h3>
+                <div class="mini-timeline">
+                    <div class="timeline-item" data-step="1">
+                        <div class="t-dot"></div>
+                        <div class="t-content">
+                            <h4>Registration</h4>
+                            <p>Check status & register</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-step="2">
+                        <div class="t-dot"></div>
+                        <div class="t-content">
+                            <h4>Research</h4>
+                            <p>Review ballot measures</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-step="3">
+                        <div class="t-dot"></div>
+                        <div class="t-content">
+                            <h4>Voting Plan</h4>
+                            <p>Mail-in or in-person</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-step="4">
+                        <div class="t-dot"></div>
+                        <div class="t-content">
+                            <h4>Election Day</h4>
+                            <p>Cast your ballot</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
